@@ -64,6 +64,100 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-《Effective C++》读书笔记 1.让自己习惯C++" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2021/02/01/%E3%80%8AEffective%20C++%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%201.%E8%AE%A9%E8%87%AA%E5%B7%B1%E4%B9%A0%E6%83%AFC++/" class="article-date">
+  <time datetime="2021-02-01T08:40:45.752Z" itemprop="datePublished">2021-02-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/02/01/%E3%80%8AEffective%20C++%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%201.%E8%AE%A9%E8%87%AA%E5%B7%B1%E4%B9%A0%E6%83%AFC++/">《Effective C++》读书笔记 1.让自己习惯C++</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="让自己习惯C"><a href="#让自己习惯C" class="headerlink" title="让自己习惯C++"></a>让自己习惯C++</h1><h2 id="条款01：视C-为一个语言联邦"><a href="#条款01：视C-为一个语言联邦" class="headerlink" title="条款01：视C++为一个语言联邦"></a>条款01：视C++为一个语言联邦</h2><p>将C++视为四个主要次语言的联邦</p>
+<ul>
+<li>C</li>
+<li>Object-Oriented C++</li>
+<li>Template C++</li>
+<li>STL</li>
+</ul>
+<p>不同次语言的高效编程守则要求可能不同</p>
+<hr>
+<h2 id="条款02：尽量以const，enum，inline替代-define"><a href="#条款02：尽量以const，enum，inline替代-define" class="headerlink" title="条款02：尽量以const，enum，inline替代#define"></a>条款02：尽量以const，enum，inline替代#define</h2><p><strong>define的坏处</strong><br>不利于维护，安全性弱<br><strong>1.用const取代</strong></p>
+<p>定义常量指针：注意const的放置</p>
+<p>class专属常量：为确保常量至多只有一份实体，必须让它成为static成员：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GamePlayer</span>&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> NumTurns=<span class="number">5</span>;<span class="comment">//常量声明式</span></span><br><span class="line">	...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//以上存在于头文件中</span></span><br><span class="line"><span class="comment">//以下存在于实现文件中</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> GamePlayer::NumTurns;<span class="comment">//NumTurns的定义；</span></span><br></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GamePlayer</span>&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> NumTurns;<span class="comment">//常量声明式</span></span><br><span class="line">	...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//以上存在于头文件中</span></span><br><span class="line"><span class="comment">//以下存在于实现文件中</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> GamePlayer::NumTurns=<span class="number">5</span>;<span class="comment">//NumTurns的定义；</span></span><br></pre></td></tr></table></figure>
+<p>若它是个class专属常量又是static且为整数类型（integral type，例如int，char，bool），则在其不被后续操作取地址的情况下可以无须提供定义式</p>
+<p><strong>2.用enum取代</strong><br>在class编译期间需要一个class常量值，例如</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GamePlayer</span>&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">enum</span> &#123; NumTurns=<span class="number">5</span>&#125;;			<span class="comment">//“the enum hack”</span></span><br><span class="line">	<span class="keyword">int</span> scores[NumTurns];		<span class="comment">//使用该常量</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//以上存在于头文件中</span></span><br><span class="line"><span class="comment">//以下存在于实现文件中</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> GamePlayer::NumTurns;<span class="comment">//NumTurns的定义；</span></span><br></pre></td></tr></table></figure>
+<p>理论基础:<strong>一个属于枚举类型（enumerated type）的数值可权充int</strong><br><strong>与define相似的地方</strong><br>无法取对应的地址（#define也得到，功能相似）<br>不想别人获得pointer或reference指向该资源</p>
+<p><strong>3.用inline取代</strong></p>
+<p>某些时候，宏定义的函数会导向奇怪的结果</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以a和b的较大值调用函数f</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CALL_WITH_MAX(a,b) f((a)&gt;(b)?(a):(b))</span></span><br><span class="line"><span class="keyword">int</span> a=<span class="number">5</span>,b=<span class="number">0</span>;</span><br><span class="line">CALL_WiTH_MAX(++a,b);	<span class="comment">//a被累加二次</span></span><br><span class="line">CALL_WITH_MAX(++a,b+<span class="number">10</span>);<span class="comment">//a被累加一次</span></span><br></pre></td></tr></table></figure>
+<p>可以用template inline的函数取代；因为inline的函数也相当于内部直接插入一段代码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">callWithMax</span><span class="params">(<span class="keyword">const</span> T&amp; a,<span class="keyword">const</span> T&amp; b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	f(a&gt;b?a:b);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>总结：</strong></p>
+<p>对于单纯常量，最好以const对象或enums替换#defines</p>
+<p>对于形如函数的宏，最好改用inline函数替换</p>
+<hr>
+<h2 id="条款03：尽可能使用const"><a href="#条款03：尽可能使用const" class="headerlink" title="条款03：尽可能使用const"></a>条款03：尽可能使用const</h2><p>1.<strong>const修饰指针时:</strong><br> const出现在星号左边，表示被指物是常量；在右边表示指针自身是常量<br><strong>const修饰迭代器时:</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> iterator iter<span class="comment">//类似T* const</span></span><br><span class="line">const_iterator cIter<span class="comment">//类似 const T*</span></span><br></pre></td></tr></table></figure>
+<p>2.<strong>将const实施于成员函数的好处</strong><br>1.使class接口容易被理解，得知哪些函数可以修改对象内容，哪些不行。<br>2.pass by reference-to-const方式传递对象需要有const成员函数可用来处理得到（并经修饰而成）的const对象。<br><strong>两个成员函数如果只是常量性不同，可以被重载</strong></p>
+<p>3.<strong>bitwise constness（编译器就是这种）和logical constness</strong></p>
+<p>bitwise constness是成员函数只有在不更改对象的任何成员变量时就认为是符合const，这个定义存在一定不足，因为即使编译器查不出更改也可能存在更改,比如改变指针所指</p>
+<p>logical constness是一个const成员可以修改它所处对象内的某些bits，但只有在客户端侦测不出的情况下才可以</p>
+<p><strong>通过mutable关键字，可以释放掉non-static成员变量的bitwise constness约束，从而在const函数内也可以修改所在对象的mutable成员变量</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mutable</span> <span class="keyword">bool</span> lengthIsValid;<span class="comment">//会被更改，即使在const成员函数内</span></span><br></pre></td></tr></table></figure>
+<p>4.在const和non-const成员函数中避免重复</p>
+<p>实现常量性转除。消除const的性质，具体的做法是在non-const的函数里调用对应的const函数，并实现强制转换（const_cast可以强制消除const属性，static_cast可以实现强制转换）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextBlock</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">...</span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="keyword">size_t</span> position)<span class="keyword">const</span></span><br><span class="line">	&#123;</span><br><span class="line">		...</span><br><span class="line">		<span class="keyword">return</span> text[position];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="keyword">size_t</span> position)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">const_cast</span>&lt;<span class="keyword">char</span>&amp;&gt;(</span><br><span class="line">		<span class="keyword">static_cast</span>&lt;<span class="keyword">const</span> TextBlock&amp;&gt;(*<span class="keyword">this</span>)[position]</span><br><span class="line">		);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>总结<br>将某些东西声明为const可帮助编译器侦测出错误用法。const可被施加于任何作用域内的对象、函数参数、函数返回类型、成员函数本体。</p>
+<p>当const和non-const成员函数存在等价实现，用non-const函数调用const版本可以避免代码重复    </p>
+<hr>
+<h2 id="条款04：确定对象被使用前已被初始化"><a href="#条款04：确定对象被使用前已被初始化" class="headerlink" title="条款04：确定对象被使用前已被初始化"></a>条款04：确定对象被使用前已被初始化</h2><p><strong>对于无任何成员的内置类型，需要手工初始化</strong></p>
+<p>构造函数最好使用初始化列表，而不要在构造函数内赋值操作。初值列列出的成语变量，其排列次序应该和它们在class中的声明次序相同</p>
+<p>要区分赋值和初始化，对于class的对象，在构造函数内赋值实际上是先调用了它们的默认构造函数，然后做赋值操作，比较低效</p>
+<p>成员的初始化列表本质是调用复制构造函数，效率较高</p>
+<p><strong>规则：</strong> 总是在初值列中列出所有成员变量，以免还需记住那些成员变量无需初值</p>
+<p>为了免除“跨编译单元之初始化次序”的问题（就是定义文件之间的初始化没有先后顺序），应该以local static对象替换non-local static对象</p>
+<p>non-local static：函数外的static对象就是non-local static变量</p>
+<p>问题：C++对于不同编译单元内的non-local static对象的初始化次序没有明确定义</p>
+<p>解决：用singleton的思想。将每个non-local static变量搬到专属函数内，这些函数返回一个reference指向它所含的对象，然后用户调用这些函数，不直接调用对象。这时，non-local static变成了local static</p>
+<p>这种reference-returning函数的形式：定义并初始化一个local static， 然后返回它</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileSystem</span>&#123;</span></span><br><span class="line">...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">extern</span> FileSystem tfs;</span><br><span class="line"><span class="comment">//替换如下</span></span><br><span class="line"><span class="function">FileSystem&amp; <span class="title">tfs</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">static</span> FileSystem fs;</span><br><span class="line">	<span class="keyword">return</span> fs;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>总结:</strong></p>
+<p>无任何成员的内置类型，需要手工初始化</p>
+<p>构造函数最好使用初始化列表，且列出的成员变量次序应该和它们在class中的声明次序相同</p>
+<p>为免除“跨编译单元之初始化次序”问题，请以local static 对象替换 non-local static对象。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2021/02/01/%E3%80%8AEffective%20C++%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%201.%E8%AE%A9%E8%87%AA%E5%B7%B1%E4%B9%A0%E6%83%AFC++/" data-id="ckkmbpu0p00002kwp5y58bsat" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-2020的个人回顾与总结" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2021/01/03/2020%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%9B%9E%E9%A1%BE%E4%B8%8E%E6%80%BB%E7%BB%93/" class="article-date">
@@ -297,7 +391,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
     </div>
   </div>
 
@@ -308,6 +402,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2021/02/01/%E3%80%8AEffective%20C++%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%201.%E8%AE%A9%E8%87%AA%E5%B7%B1%E4%B9%A0%E6%83%AFC++/">《Effective C++》读书笔记 1.让自己习惯C++</a>
+          </li>
         
           <li>
             <a href="/2021/01/03/2020%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%9B%9E%E9%A1%BE%E4%B8%8E%E6%80%BB%E7%BB%93/">2020的个人回顾与总结</a>
