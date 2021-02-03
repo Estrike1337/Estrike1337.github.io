@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>《Effective C++》读书笔记 2.构造_析构_赋值运算 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="构造&#x2F;析构&#x2F;赋值运算条款05：了解C++默默编写并调用哪些函数编译器自动生成copy构造函数、copy assignment操作符、default构造函数（没有声明任何构造函数的时候） 这些函数都是public且inline的 注意，只有在这些函数被需要（被调用）的时候它们才会被编译器创造出来 关于copy构造函数和copy assignment操作符&#x3D;，只有当生出的代码合法且有适当机会证明它有意">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《Effective C++》读书笔记 2.构造_析构_赋值运算">
+<meta property="og:url" content="http://yoursite.com/2021/02/03/%E3%80%8AEffective%20C++%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%202.%E6%9E%84%E9%80%A0_%E6%9E%90%E6%9E%84_%E8%B5%8B%E5%80%BC%E8%BF%90%E7%AE%97/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="构造&#x2F;析构&#x2F;赋值运算条款05：了解C++默默编写并调用哪些函数编译器自动生成copy构造函数、copy assignment操作符、default构造函数（没有声明任何构造函数的时候） 这些函数都是public且inline的 注意，只有在这些函数被需要（被调用）的时候它们才会被编译器创造出来 关于copy构造函数和copy assignment操作符&#x3D;，只有当生出的代码合法且有适当机会证明它有意">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-02-03T13:44:57.116Z">
+<meta property="article:modified_time" content="2021-02-03T13:43:12.269Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-《Effective C++》读书笔记 2.构造_析构_赋值运算" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2021/02/03/%E3%80%8AEffective%20C++%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%202.%E6%9E%84%E9%80%A0_%E6%9E%90%E6%9E%84_%E8%B5%8B%E5%80%BC%E8%BF%90%E7%AE%97/" class="article-date">
+  <time datetime="2021-02-03T13:44:57.116Z" itemprop="datePublished">2021-02-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      《Effective C++》读书笔记 2.构造_析构_赋值运算
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="构造-析构-赋值运算"><a href="#构造-析构-赋值运算" class="headerlink" title="构造/析构/赋值运算"></a>构造/析构/赋值运算</h1><h2 id="条款05：了解C-默默编写并调用哪些函数"><a href="#条款05：了解C-默默编写并调用哪些函数" class="headerlink" title="条款05：了解C++默默编写并调用哪些函数"></a>条款05：了解C++默默编写并调用哪些函数</h2><p>编译器自动生成copy构造函数、copy assignment操作符、default构造函数（没有声明任何构造函数的时候） <strong>这些函数都是public且inline的</strong></p>
+<p><strong>注意，只有在这些函数被需要（被调用）的时候它们才会被编译器创造出来</strong></p>
+<p>关于copy构造函数和copy assignment操作符=，只有当生出的代码合法且有适当机会证明它有意义，编译器才会自动生出。<strong>比如成员变量里面有引用或者const，无法赋值，编译器没法解决，就不生成</strong></p>
+<h2 id="条款06：若不想使用编译器自动生成的函数，就该明确拒绝"><a href="#条款06：若不想使用编译器自动生成的函数，就该明确拒绝" class="headerlink" title="条款06：若不想使用编译器自动生成的函数，就该明确拒绝"></a>条款06：若不想使用编译器自动生成的函数，就该明确拒绝</h2><p>编译器自动生成的函数是public的，所以不安全<br>解决方法：<br>一、将成员函数声明为private而且故意不实现它们<br>如果实现了，会存在被友元或成员函数调用的风险</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"> ...</span><br><span class="line"><span class="keyword">private</span>;</span><br><span class="line">...</span><br><span class="line">HomeForSale(<span class="keyword">const</span> HomeForSale&amp;);		<span class="comment">//只有声明</span></span><br><span class="line">HomeForSale&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> HomeForSale&amp;);</span><br></pre></td></tr></table></figure>
+<p>二、专门设计一个阻止copying动作的base class</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Uncopyable</span>&#123;</span></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	Uncopyable()&#123;&#125;		<span class="comment">//允许derived对象构造和析构</span></span><br><span class="line">	~Uncopyable()&#123;&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	Uncopyable(<span class="keyword">const</span> Uncopyable&amp;); <span class="comment">//阻止copying</span></span><br><span class="line">	Uncopyable&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Uncopyable&amp;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span>:</span><span class="keyword">private</span> Uncopyable&#123;</span><br><span class="line">...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="条款07：为多态基类声明virtual析构函数"><a href="#条款07：为多态基类声明virtual析构函数" class="headerlink" title="条款07：为多态基类声明virtual析构函数"></a>条款07：为多态基类声明virtual析构函数</h2><p><strong>带有virtual函数的class都几乎确定应该也有一个virtual析构函数</strong>以防内存泄漏</p>
+<p><strong>virtual函数导致class生成虚函数表，会增大存储空间</strong></p>
+<p>对于析构函数不是virtual的class，不适合作为base class，典型代表是string类以及STL里面的类</p>
+<p>又由于所有对象析构时，最后都会调用其基类的析构函数，所以基类的析构函数必须有定义。纯虚析构函数也不例外。<br>所以，<strong>必须为基类的纯虚析构函数提供一个定义</strong>，否则，链接器会发出抱怨的。</p>
+<h2 id="条款08：别让异常逃离析构函数"><a href="#条款08：别让异常逃离析构函数" class="headerlink" title="条款08：别让异常逃离析构函数"></a>条款08：别让异常逃离析构函数</h2><p>析构函数绝对不要吐出异常。如果一个被析构函数调用的函数可能抛出异常，析构函数应该捕捉任何异常，然后吞下它们（不传播）或结束程序</p>
+<p>析构期间出现错误，强迫结束的意义在于阻止异常传播</p>
+<p>如果客户需要对某个操作函数运行期间抛出的异常作出反应，那么class应该提供一个普通函数（而非在析构函数中）执行该操作</p>
+<p>可以为行为上可能存在异常的类别设置对应的操作类，进一步封装潜在的错误操作，并将相关的处理移至其他地方</p>
+<h2 id="条款09：绝不在构造和析构过程中调用virtual函数"><a href="#条款09：绝不在构造和析构过程中调用virtual函数" class="headerlink" title="条款09：绝不在构造和析构过程中调用virtual函数"></a>条款09：绝不在构造和析构过程中调用virtual函数</h2><p>在derived class对象的base class构造期间，对象类型是base class而不是derived class，virtual函数会被编译器解析至base class</p>
+<p>这里的意思是，在构造和析构函数里调用虚函数，效果等效于非虚函数，没有意义</p>
+<p><strong>解决方法</strong>：将base class中的virtual关键字去掉，在derived构造函数传递必要信息（参数）给原函数</p>
+<h2 id="条款10：令operator-返回一个reference-to-this"><a href="#条款10：令operator-返回一个reference-to-this" class="headerlink" title="条款10：令operator=返回一个reference to *this"></a>条款10：令operator=返回一个reference to *this</h2><p>为实现“连锁赋值”，赋值操作符必须返回一个reference指向操作符的左侧实参。</p>
+<h2 id="条款11：在operator-中处理“自我赋值”"><a href="#条款11：在operator-中处理“自我赋值”" class="headerlink" title="条款11：在operator=中处理“自我赋值”"></a>条款11：在operator=中处理“自我赋值”</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bitmap</span>&#123;</span>...&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span>&#123;</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">Bitmap* pb;</span><br><span class="line">&#125;;</span><br><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs)<span class="comment">//一份不安全的operator=实现版本</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">delete</span> pb;</span><br><span class="line">	pb=<span class="keyword">new</span> Bitmap(*rhs.pb);</span><br><span class="line">	<span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> 如果=操作符左右是同一个对象，则delete会同时销毁当前对象和rhs的bitmap，导致后续出错</p>
+<p><strong>解决方法：</strong><br>copy and swap技术：对右值做复制，将临时值与对象swap</p>
+<p><strong>总结：</strong></p>
+<p>确保当对象自我赋值时，operator=有良好的行为。其中技术包括比较“来源对象”和“目标对象”的地址（证同测试）、精心的语句顺序、copy-and-swap技术</p>
+<p><strong>确定任何函数如果操作一个以上的对象，而其中多个对象是同一个对象时，其行为仍然正确</strong></p>
+<h1 id="条款12：复制对象时勿忘其每一个成分"><a href="#条款12：复制对象时勿忘其每一个成分" class="headerlink" title="条款12：复制对象时勿忘其每一个成分"></a>条款12：复制对象时勿忘其每一个成分</h1><p>如果你为class添加一个成员变量，记得同时修改copying函数</p>
+<p><strong>一旦存在继承，在copying函数中不要忘记对base class中的成员变量操作</strong>。如果那些成员是private，则应调用base class中的copying 函数</p>
+<p>不要尝试以某个copying函数实现另一个copying函数，应该将共同机能放进第三个函数，并由两个copying函数共同调用</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2021/02/03/%E3%80%8AEffective%20C++%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%202.%E6%9E%84%E9%80%A0_%E6%9E%90%E6%9E%84_%E8%B5%8B%E5%80%BC%E8%BF%90%E7%AE%97/" data-id="ckkphgwao00003cwp5z006ec1" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2021/02/01/%E3%80%8AEffective%20C++%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%201.%E8%AE%A9%E8%87%AA%E5%B7%B1%E4%B9%A0%E6%83%AFC++/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">《Effective C++》读书笔记 1.让自己习惯C++</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/02/03/%E3%80%8AEffective%20C++%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%202.%E6%9E%84%E9%80%A0_%E6%9E%90%E6%9E%84_%E8%B5%8B%E5%80%BC%E8%BF%90%E7%AE%97/">《Effective C++》读书笔记 2.构造_析构_赋值运算</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/01/%E3%80%8AEffective%20C++%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%201.%E8%AE%A9%E8%87%AA%E5%B7%B1%E4%B9%A0%E6%83%AFC++/">《Effective C++》读书笔记 1.让自己习惯C++</a>
+          </li>
+        
+          <li>
+            <a href="/2021/01/03/2020%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%9B%9E%E9%A1%BE%E4%B8%8E%E6%80%BB%E7%BB%93/">2020的个人回顾与总结</a>
+          </li>
+        
+          <li>
+            <a href="/2021/01/03/markdown%E7%BC%96%E8%BE%91%E5%99%A8/">markdown编辑器</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/27/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
